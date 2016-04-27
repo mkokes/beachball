@@ -8,8 +8,32 @@ int motorPin = A4;
 // Define a variable for beachball status off by default
 int status = 0;
 
-// Declare function
+// Define a variable for beachball speed
+int speed = 0;
+
+// Declare functions
 int beachBall(String command);
+
+// Set the beachball speed
+int beachBallv2(String command) {
+    if ( command.length() > 0 ) {
+        speed = command.toInt();
+    }
+    return speed;
+}
+
+// Spin or stop the ball based on speed setting
+int spinner() {
+    if ( speed > 0 && speed < 256 ) {
+        analogWrite(motorPin, speed);
+        status = 1;
+    }
+
+    if ( speed == 0 ) {
+        analogWrite(motorPin, speed);
+        status = 0;
+    }
+}
 
 // Do this once on startup
 void setup() {
@@ -17,20 +41,22 @@ void setup() {
 
   // Expose variables to the cloud
   Particle.variable("status", status);
+  Particle.variable("speed", speed);
 
-  // Expose function to the cloud
+  // Expose functions to the cloud
   Particle.function("beachball", beachBall);
+  Particle.function("speedball", beachBallv2);
 
   // Turn beachball off on restart
   beachballOff();
 }
 
-
 void loop() {
     // Do this in an endless loop
+    spinner();
 }
 
-// POST function
+
 // This  function gets called when there is a matching POST request
 int beachBall(String command) {
   if (command == "on") {
@@ -45,12 +71,14 @@ int beachBall(String command) {
 }
 
 int beachballOn() {
-  analogWrite(motorPin, 75);  // Faster than 75 gets a little hairy
-  int status = 1;
+  analogWrite(motorPin, 120);  // Faster than 120 gets a little hairy
+  speed = 120;
+  status = 1;
   return 1;
 }
 int beachballOff() {
   analogWrite(motorPin, 0);
-  int status = 0;
+  status = 0;
+  speed = 0;
   return 1;
 }
