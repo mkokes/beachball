@@ -2,6 +2,28 @@
 Beachball Spinner Control
 */
 
+// Music Note Definitions
+#define  c     3830    // 261 Hz
+#define  d     3400    // 294 Hz
+#define  e     3038    // 329 Hz
+#define  f     2864    // 349 Hz
+#define  g     2550    // 392 Hz
+#define  a     2272    // 440 Hz
+#define  b     2028    // 493 Hz
+#define  C     1912    // 523 Hz
+// Define a special note, 'R', to represent a rest
+#define  R     0
+// DURATION OF THE NOTES
+#define BPM 120    //  you can change this value changing all the others
+#define H 2*Q //half 2/4
+#define Q 60000/BPM //quarter 1/4
+#define E Q/2   //eighth 1/8
+#define S Q/4 // sixteenth 1/16
+#define W 4*Q // whole 4/4
+
+// Piezo Speaker is controlled by this PWM pin
+int piezoPin = D2;
+
 // Motor is controlled by this PWM pin
 int motorPin = A4;
 
@@ -10,6 +32,9 @@ int status = 0;
 
 // Define a variable for beachball speed
 int speed = 0;
+
+// Define a variable if music is playing
+int mstatus = 0;
 
 // Declare functions
 int beachBall(String command);
@@ -35,9 +60,38 @@ int spinner() {
     }
 }
 
+int imperialMarch() {
+    tone( piezoPin, g, Q );
+    delay(500);
+    tone( piezoPin, g, Q );
+    delay(500);
+    tone( piezoPin, g, Q );
+    delay(500);
+    tone( piezoPin, d, E+S);
+    delay(500);
+    tone( piezoPin, a, E+S );
+    delay(500);
+    tone( piezoPin, g, S );
+    delay(500);
+    tone( piezoPin, d, E+S );
+    delay(500);
+    tone( piezoPin, a, E+S );
+    delay(500);
+    tone( piezoPin, g, S );
+}
+
+// Play the imperial march once
+int playMarch() {
+    if ( mstatus != 1 ) {
+        mstatus = 1;
+        //imperialMarch();
+    }
+}
+
 // Do this once on startup
 void setup() {
   pinMode(motorPin, OUTPUT);
+  pinMode(piezoPin, OUTPUT);
 
   // Expose variables to the cloud
   Particle.variable("status", status);
@@ -49,11 +103,15 @@ void setup() {
 
   // Turn beachball off on restart
   beachballOff();
+
 }
+
 
 void loop() {
     // Do this in an endless loop
     spinner();
+    // Play Music
+    playMarch();
 }
 
 
